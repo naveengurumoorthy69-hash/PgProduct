@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -11,6 +11,7 @@ import {
   Wallet
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import logoUrl from '../logo.png';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
@@ -23,14 +24,18 @@ const navItems = [
 ];
 
 export function Sidebar({ className, onClose }: { className?: string, onClose?: () => void }) {
-  // To use a custom logo, replace this URL with your logo image URL (e.g., '/logo.png')
-  const logoUrl = "/logo.png"; 
+  const [logoError, setLogoError] = useState(false);
 
   return (
     <aside className={cn("flex flex-col w-64 bg-slate-900 text-slate-300 h-full border-r border-slate-800", className)}>
       <div className="p-6 flex items-center gap-3 text-white">
-        {logoUrl ? (
-          <img src={logoUrl} alt="PG Manager Logo" className="w-8 h-8 object-contain rounded" />
+        {!logoError ? (
+          <img 
+            src={logoUrl} 
+            alt="PG Manager Logo" 
+            className="w-8 h-8 object-contain rounded" 
+            onError={() => setLogoError(true)}
+          />
         ) : (
           <div className="bg-indigo-500 p-2 rounded-lg">
             <Building className="w-6 h-6 text-white" />

@@ -88,7 +88,7 @@ export function Reports() {
         <Card>
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold text-slate-800 mb-6">Income vs Expenses (6 Months)</h3>
-            <div className="h-80">
+            <div className="h-80 min-h-[320px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={last6Months} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -111,7 +111,7 @@ export function Reports() {
         <Card>
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold text-slate-800 mb-6">Expense Breakdown (Current Month)</h3>
-            <div className="h-80">
+            <div className="h-80 min-h-[320px] w-full">
               {expensesByCategory.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>

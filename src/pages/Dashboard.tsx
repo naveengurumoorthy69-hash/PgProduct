@@ -4,7 +4,7 @@ import { Card, CardContent } from '../components/ui/Card';
 import { formatCurrency } from '../lib/utils';
 import { BedDouble, Users, IndianRupee, Receipt, AlertCircle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { startOfMonth, endOfMonth, isWithinInterval, parseISO, format } from 'date-fns';
+import { startOfMonth, endOfMonth, isWithinInterval, parseISO, format, subMonths } from 'date-fns';
 
 export function Dashboard() {
   const { currentPg, rooms, tenants, transactions } = useAppContext();
@@ -48,15 +48,23 @@ export function Dashboard() {
     .reduce((acc, t) => acc + t.amount, 0);
   const pendingRent = expectedRent - paidRent;
 
-  // Chart Data (Mock last 6 months based on current month for demo)
-  const chartData = [
-    { name: 'Jan', income: 40000, expense: 24000 },
-    { name: 'Feb', income: 30000, expense: 13980 },
-    { name: 'Mar', income: 20000, expense: 9800 },
-    { name: 'Apr', income: 27800, expense: 3908 },
-    { name: 'May', income: 18900, expense: 4800 },
-    { name: 'Jun', income: monthlyIncome, expense: monthlyExpense },
-  ];
+  // Chart Data (Last 6 months based on selected month)
+  const chartData = Array.from({ length: 6 }).map((_, i) => {
+    const d = subMonths(parseISO(`${selectedMonth}-01`), 5 - i);
+    const start = startOfMonth(d);
+    const end = endOfMonth(d);
+    
+    const monthTx = transactions.filter(t => 
+      t.pgId === currentPg.id && 
+      isWithinInterval(parseISO(t.date), { start, end })
+    );
+    
+    return {
+      name: format(d, 'MMM'),
+      income: monthTx.filter(t => t.type === 'INCOME').reduce((acc, t) => acc + t.amount, 0),
+      expense: monthTx.filter(t => t.type === 'EXPENSE').reduce((acc, t) => acc + t.amount, 0)
+    };
+  });
 
   const StatCard = ({ title, value, icon: Icon, trend, colorClass }: any) => (
     <Card>
@@ -130,7 +138,7 @@ export function Dashboard() {
         <Card className="lg:col-span-2">
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold text-slate-800 mb-6">Income vs Expenses (6 Months)</h3>
-            <div className="h-80">
+            <div className="h-80 min-h-[320px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />

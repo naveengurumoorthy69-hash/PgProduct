@@ -5,6 +5,7 @@ import { useAppContext } from '../context/AppContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { supabase } from '../lib/supabase';
+import logoUrl from '../logo.png';
 
 export function Login() {
   const [name, setName] = useState('');
@@ -13,11 +14,9 @@ export function Login() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const { login } = useAppContext();
   const navigate = useNavigate();
-  
-  // To use a custom logo, replace this URL with your logo image URL (e.g., '/logo.png')
-  const logoUrl = "/logo.png"; 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,9 +24,24 @@ export function Login() {
     setLoading(true);
     
     try {
-      if (name && email) {
+      if (email && (isSignUp ? name : true)) {
         await login(name, email, password, isSignUp);
+        
+        // If sign up, check if we need to show a verification message
+        if (isSignUp && supabase) {
+          // In Supabase, if email confirmation is enabled, the session won't be created immediately.
+          // We can check if the user is actually logged in by checking the session.
+          const { data } = await supabase.auth.getSession();
+          if (!data.session) {
+            setError('Account created! Please check your email to verify your account before logging in.');
+            setIsSignUp(false);
+            return;
+          }
+        }
+        
         navigate('/select-pg');
+      } else {
+        setError('Please fill in all required fields.');
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred during authentication');
@@ -40,8 +54,13 @@ export function Login() {
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          {logoUrl ? (
-            <img src={logoUrl} alt="PG Manager Logo" className="w-16 h-16 object-contain rounded-xl shadow-sm" />
+          {!logoError ? (
+            <img 
+              src={logoUrl} 
+              alt="PG Manager Logo" 
+              className="w-16 h-16 object-contain rounded-xl shadow-sm" 
+              onError={() => setLogoError(true)}
+            />
           ) : (
             <div className="bg-indigo-600 p-4 rounded-2xl shadow-lg">
               <Building className="w-10 h-10 text-white" />
