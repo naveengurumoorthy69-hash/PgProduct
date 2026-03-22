@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { Layout } from './components/Layout';
 import { Login } from './pages/Login';
+import { UpdatePassword } from './pages/UpdatePassword';
 import { PGSelection } from './pages/PGSelection';
 import { Dashboard } from './pages/Dashboard';
 import { Rooms } from './pages/Rooms';
@@ -18,6 +19,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/update-password" element={<UpdatePassword />} />
           <Route path="/select-pg" element={<PGSelection />} />
           
           <Route element={<Layout />}>

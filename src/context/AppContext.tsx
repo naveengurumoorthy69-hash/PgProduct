@@ -186,7 +186,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         address: data.address,
         ownerId: data.owner_id
       };
-      setPgs([...pgs, mappedPg]);
+      setPgs(prev => [...prev, mappedPg]);
       if (!currentPg) setCurrentPg(mappedPg);
     } else {
       console.error("Error adding PG:", error);
@@ -213,7 +213,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       .single();
       
     if (!error && data) {
-      setRooms([...rooms, {
+      setRooms(prev => [...prev, {
         id: data.id,
         roomNumber: data.room_number,
         capacity: data.capacity,
@@ -237,7 +237,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (roomData.rentPerBed !== undefined) updateData.rent_per_bed = roomData.rentPerBed;
     
     const { error } = await supabase.from('rooms').update(updateData).eq('id', id);
-    if (!error) setRooms(rooms.map(r => r.id === id ? { ...r, ...roomData } : r));
+    if (!error) setRooms(prev => prev.map(r => r.id === id ? { ...r, ...roomData } : r));
     else {
       console.error("Error updating room:", error);
       alert(`Database Error: ${error?.message}\nDetails: ${error?.details || 'Check console for more info'}`);
@@ -247,7 +247,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const deleteRoom = async (id: string) => {
     if (!supabase) return;
     const { error } = await supabase.from('rooms').delete().eq('id', id);
-    if (!error) setRooms(rooms.filter(r => r.id !== id));
+    if (!error) setRooms(prev => prev.filter(r => r.id !== id));
     else {
       console.error("Error deleting room:", error);
       alert(`Database Error: ${error?.message}\nDetails: ${error?.details || 'Check console for more info'}`);
@@ -274,7 +274,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       .single();
       
     if (!error && data) {
-      setTenants([...tenants, {
+      setTenants(prev => [...prev, {
         id: data.id,
         name: data.name,
         phone: data.phone,
@@ -310,7 +310,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (tenantData.isActive !== undefined) updateData.is_active = tenantData.isActive;
     
     const { error } = await supabase.from('tenants').update(updateData).eq('id', id);
-    if (!error) setTenants(tenants.map(t => t.id === id ? { ...t, ...tenantData } : t));
+    if (!error) setTenants(prev => prev.map(t => t.id === id ? { ...t, ...tenantData } : t));
     else {
       console.error("Error updating tenant:", error);
       alert(`Database Error: ${error?.message}\nDetails: ${error?.details || 'Check console for more info'}`);
@@ -320,7 +320,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const deleteTenant = async (id: string) => {
     if (!supabase) return;
     const { error } = await supabase.from('tenants').delete().eq('id', id);
-    if (!error) setTenants(tenants.filter(t => t.id !== id));
+    if (!error) setTenants(prev => prev.filter(t => t.id !== id));
     else {
       console.error("Error deleting tenant:", error);
       alert(`Database Error: ${error?.message}\nDetails: ${error?.details || 'Check console for more info'}`);
@@ -344,7 +344,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       .single();
       
     if (!error && data) {
-      setTransactions([...transactions, {
+      setTransactions(prev => [...prev, {
         id: data.id,
         type: data.type,
         amount: data.amount,
@@ -364,7 +364,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const deleteTransaction = async (id: string) => {
     if (!supabase) return;
     const { error } = await supabase.from('transactions').delete().eq('id', id);
-    if (!error) setTransactions(transactions.filter(t => t.id !== id));
+    if (!error) setTransactions(prev => prev.filter(t => t.id !== id));
     else {
       console.error("Error deleting transaction:", error);
       alert(`Database Error: ${error?.message}\nDetails: ${error?.details || 'Check console for more info'}`);

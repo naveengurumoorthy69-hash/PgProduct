@@ -97,7 +97,7 @@ export function Rent() {
       .filter(bed => !occupiedBeds.includes(bed));
   }, [roomId, pgRooms, activeTenants, tenantId]);
 
-  const handleRecordPayment = (e: React.FormEvent) => {
+  const handleRecordPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
@@ -114,38 +114,42 @@ export function Rent() {
       return;
     }
 
-    if (parseFloat(amount) > 0) {
-      addTransaction({
-        type: 'INCOME',
-        category: 'Rent',
-        amount: parseFloat(amount),
-        date,
-        tenantId,
-        paymentMode,
-        notes
-      });
-    }
+    try {
+      if (parseFloat(amount) > 0) {
+        await addTransaction({
+          type: 'INCOME',
+          category: 'Rent',
+          amount: parseFloat(amount),
+          date,
+          tenantId,
+          paymentMode,
+          notes
+        });
+      }
 
-    if (electricityAmount && parseFloat(electricityAmount) > 0) {
-      addTransaction({
-        type: 'INCOME',
-        category: 'Electricity',
-        amount: parseFloat(electricityAmount),
-        date,
-        tenantId,
-        paymentMode,
-        notes
-      });
-    }
+      if (electricityAmount && parseFloat(electricityAmount) > 0) {
+        await addTransaction({
+          type: 'INCOME',
+          category: 'Electricity',
+          amount: parseFloat(electricityAmount),
+          date,
+          tenantId,
+          paymentMode,
+          notes
+        });
+      }
 
-    const tenant = activeTenants.find(t => t.id === tenantId);
-    if (tenant && (tenant.roomId !== roomId || tenant.bedNumber.toString() !== bedNumber)) {
-      updateTenant(tenantId, { roomId, bedNumber: parseInt(bedNumber) });
-    }
+      const tenant = activeTenants.find(t => t.id === tenantId);
+      if (tenant && (tenant.roomId !== roomId || tenant.bedNumber.toString() !== bedNumber)) {
+        await updateTenant(tenantId, { roomId, bedNumber: parseInt(bedNumber) });
+      }
 
-    setIsModalOpen(false);
-    setTenantId(''); setAmount(''); setElectricityAmount(''); setDate(format(new Date(), 'yyyy-MM-dd')); setPaymentMode('UPI'); setNotes('');
-    setRoomId(''); setBedNumber('');
+      setIsModalOpen(false);
+      setTenantId(''); setAmount(''); setElectricityAmount(''); setDate(format(new Date(), 'yyyy-MM-dd')); setPaymentMode('UPI'); setNotes('');
+      setRoomId(''); setBedNumber('');
+    } catch (err: any) {
+      setError(err.message || 'Failed to record payment. Please try again.');
+    }
   };
 
   const handleTenantSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -334,7 +338,7 @@ export function Rent() {
 
           <div className="grid grid-cols-3 gap-4">
             <Input label="Rent Amount (₹)" type="number" required value={amount} onChange={(e) => { setAmount(e.target.value); setError(''); }} />
-            <Input label="Electricity (₹)" type="number" value={electricityAmount} onChange={(e) => { setElectricityAmount(e.target.value); setError(''); }} placeholder="Optional" />
+            <Input label="Electricity (₹)" type="number" required value={electricityAmount} onChange={(e) => { setElectricityAmount(e.target.value); setError(''); }} placeholder="e.g. 500" />
             <Input label="Date" type="date" required value={date} onChange={(e) => { setDate(e.target.value); setError(''); }} />
           </div>
 
