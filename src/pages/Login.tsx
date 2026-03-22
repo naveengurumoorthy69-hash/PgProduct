@@ -20,6 +20,14 @@ export function Login() {
   const { login } = useAppContext();
   const navigate = useNavigate();
 
+  React.useEffect(() => {
+    // If the user lands on the login page but has a recovery hash (e.g. from a fallback redirect)
+    // redirect them to the update password page so they can complete the flow.
+    if (window.location.hash.includes('type=recovery') || window.location.hash.includes('access_token')) {
+      navigate('/update-password' + window.location.hash);
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -108,20 +116,21 @@ export function Login() {
       {/* Right Side - Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-24 xl:px-32 bg-white">
         <div className="mx-auto w-full max-w-md">
-          {/* Mobile Logo */}
-          <div className="flex lg:hidden justify-center mb-8">
-            {!logoError ? (
-              <img
-                src={logoUrl}
-                alt="PG Manager Logo"
-                className="w-16 h-16 object-contain rounded-xl shadow-sm"
-                onError={() => setLogoError(true)}
-              />
-            ) : (
-              <div className="bg-indigo-600 p-4 rounded-2xl shadow-lg">
-                <Building className="w-10 h-10 text-white" />
+          {/* Mobile Header */}
+          <div className="lg:hidden w-full h-48 relative mb-8 rounded-2xl overflow-hidden shadow-lg">
+            <img
+              src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&auto=format&fit=crop"
+              alt="Modern building interior"
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
+            <div className="absolute bottom-4 left-4 flex items-center gap-3">
+              <div className="bg-indigo-600 p-2 rounded-xl shadow-sm border border-white/10">
+                <Building className="w-6 h-6 text-white" />
               </div>
-            )}
+              <h1 className="text-2xl font-bold text-white tracking-tight">PG Manager</h1>
+            </div>
           </div>
 
           <div className="mb-10">

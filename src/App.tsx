@@ -32,7 +32,7 @@ export default function App() {
             <Route path="/reports" element={<Reports />} />
           </Route>
           
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to={{ pathname: "/", hash: window.location.hash }} replace />} />
         </Routes>
       </BrowserRouter>
     </AppProvider>

@@ -21,20 +21,24 @@ export function UpdatePassword() {
 
     // Check if we have a session or if we're processing a recovery link
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session && !window.location.hash.includes('type=recovery')) {
+      const hash = window.location.hash;
+      if (!session && !hash.includes('type=recovery') && !hash.includes('access_token')) {
         // If no session and no recovery hash, redirect to login
         navigate('/login');
       } else {
         setCheckingSession(false);
+        // If there's an error in the hash, display it
+        if (hash.includes('error_description=')) {
+          const errorDesc = new URLSearchParams(hash.substring(1)).get('error_description');
+          if (errorDesc) setError(decodeURIComponent(errorDesc.replace(/\+/g, ' ')));
+        }
       }
     });
 
     // Listen for the recovery event specifically
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY') {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
         setCheckingSession(false);
-      } else if (event === 'SIGNED_OUT') {
-        navigate('/login');
       }
     });
 
@@ -54,9 +58,13 @@ export function UpdatePassword() {
 
       if (error) throw error;
 
-      setSuccessMessage('Password updated successfully! Redirecting to dashboard...');
+      setSuccessMessage('Password updated successfully! Redirecting to login...');
+      
+      // Sign out the user so they have to log in with their new password
+      await supabase!.auth.signOut();
+      
       setTimeout(() => {
-        navigate('/select-pg');
+        navigate('/login');
       }, 2000);
     } catch (err: any) {
       setError(err.message || 'An error occurred while updating password');

@@ -9,7 +9,7 @@ export function Layout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to={{ pathname: "/login", hash: window.location.hash }} replace />;
   }
 
   if (!currentPg) {
